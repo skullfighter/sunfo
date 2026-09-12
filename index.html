@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>An Infinite Sunflower</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Jost:wght@300;400;500&display=swap">
+<style>
+  html { color-scheme: dark; }
+  body { margin: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<style>
+  :root {
+    --night:      #0e1a1d;
+    --night-deep: #07100f;
+    --dusk:       #16292b;
+    --cream:      #f4ecdc;
+    --cream-dim:  #a3b1a6;
+    --gold:       #f2b33d;
+    --gold-deep:  #c97f18;
+    --seed:       #4a2c1a;
+    --signal:     #57bd85;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    margin: 0;
+    height: 100vh;
+    height: 100svh;
+    overflow: hidden;
+    background:
+      radial-gradient(125% 95% at 50% 14%, #2b3d3a 0%, var(--dusk) 38%, var(--night) 70%, var(--night-deep) 100%);
+    color: var(--cream);
+    font-family: "Jost", "Avenir Next", system-ui, sans-serif;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .room {
+    height: 100%;
+    padding-block: clamp(12px, 3vh, 40px);
+    padding-inline: 18px;
+    max-width: 720px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    justify-items: center;
+    align-content: stretch;
+    gap: clamp(8px, 1.6vh, 22px);
+    text-align: center;
+  }
+
+  /* ── status ─────────────────────────────────── */
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    letter-spacing: .28em;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+  }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--signal);
+    animation: ping 2.4s cubic-bezier(.4,0,.2,1) infinite;
+  }
+  @keyframes ping {
+    0%   { box-shadow: 0 0 0 0 rgba(87,189,133,.5); }
+    70%  { box-shadow: 0 0 0 11px rgba(87,189,133,0); }
+    100% { box-shadow: 0 0 0 0 rgba(87,189,133,0); }
+  }
+
+  /* ── words ──────────────────────────────────── */
+  .words { display: grid; gap: 6px; justify-items: center; }
+
+  .line-1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic;
+    font-size: clamp(30px, 8.6vmin, 64px);
+    font-weight: 400;
+    line-height: .95;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .swap {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(20px, 5.6vmin, 40px);
+    line-height: 1.15;
+    margin: 2px 0 0;
+    min-height: 1.2em;
+    color: var(--gold);
+    transition: opacity .5s ease, transform .5s ease;
+  }
+  .swap.out { opacity: 0; transform: translateY(-6px); }
+
+  .line-3 {
+    font-family: "Jost", sans-serif;
+    font-size: clamp(12px, 3.2vw, 14px);
+    letter-spacing: .38em;
+    text-transform: uppercase;
+    text-indent: .38em;
+    color: var(--cream-dim);
+    margin: clamp(4px, 1vh, 10px) 0 0;
+  }
+  .line-3 b { color: var(--signal); font-weight: 500; }
+
+  /* ── the plant ──────────────────────────────── */
+  .tear {
+    position: relative;
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: inherit;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tear:focus-visible { outline: 2px solid var(--gold); outline-offset: 14px; border-radius: 24px; }
+
+  .halo, .halo::before {
+    position: absolute;
+    top: 36%;
+    left: 50%;
+    height: 62%;
+    aspect-ratio: 1;
+    border: 1px solid rgba(242,179,61,.28);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    animation: ring 4.2s ease-out infinite;
+    pointer-events: none;
+  }
+  .halo::before { content: ""; top: 0; left: 0; height: 100%; }
+  .halo::before { animation-delay: 2.1s; }
+  @keyframes ring {
+    0%   { transform: translate(-50%, -50%) scale(.6); opacity: 0; }
+    18%  { opacity: .7; }
+    100% { transform: translate(-50%, -50%) scale(1.7); opacity: 0; }
+  }
+  .halo::before { left: 50%; top: 50%; }
+
+  svg.plant {
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    overflow: visible;
+  }
+
+  /* petals */
+  .petal {
+    transform-box: view-box;
+    transform-origin: 0px -20px;
+    transition: transform .95s cubic-bezier(.25,.6,.4,1), opacity .95s ease-in;
+  }
+  .uprooted .petal {
+    transform: translate(var(--dx, 0px), var(--dy, 140px)) rotate(var(--rot, 90deg));
+    opacity: 0;
+  }
+
+  /* leaves, stem, seed head — for the full uprooting */
+  .leaf {
+    transform-box: view-box;
+    transform-origin: 0px 104px;
+    transition: transform 1s cubic-bezier(.25,.6,.4,1), opacity 1s ease-in;
+  }
+  .uprooted .leaf {
+    transform: translate(var(--lx, 0px), var(--ly, 120px)) rotate(var(--lr, 120deg));
+    opacity: 0;
+  }
+  .stem {
+    transform-box: view-box;
+    transform-origin: 2px 158px;
+    transition: transform 1.05s cubic-bezier(.35,.1,.4,1), opacity 1.05s ease-in .15s;
+  }
+  .uprooted .stem { transform: rotate(78deg) translate(10px, 26px); opacity: 0; }
+  .head {
+    transform-box: view-box;
+    transform-origin: 0px -20px;
+    transition: transform 1s cubic-bezier(.4,.1,.5,1), opacity .9s ease-in;
+  }
+  .uprooted .head { transform: translate(58px, 168px) rotate(96deg); opacity: 0; }
+
+  /* blooming */
+  .bloom { transform-box: view-box; transform-origin: 0px -20px; }
+  .bloom-in { animation: unfurl 1.15s cubic-bezier(.22,.9,.3,1) backwards; }
+  .r-outer.bloom-in { animation-delay: .02s; }
+  .r-in.bloom-in    { animation-delay: .2s; }
+  @keyframes unfurl {
+    from { transform: scale(.28) rotate(-22deg); opacity: 0; }
+    to   { transform: scale(1) rotate(0); opacity: 1; }
+  }
+
+  /* growing back out of the soil */
+  .regrow .stem-path { animation: draw 1s ease-out backwards; }
+  @keyframes draw { from { stroke-dashoffset: 210; } to { stroke-dashoffset: 0; } }
+
+  .regrow .leaf   { animation: sprout .55s cubic-bezier(.3,1.5,.5,1) backwards; }
+  .regrow .leaf-r { animation-delay: .5s; }
+  .regrow .leaf-l { animation-delay: .68s; }
+  @keyframes sprout {
+    from { transform: scale(.1) rotate(-18deg); opacity: 0; }
+    to   { transform: scale(1) rotate(0); opacity: 1; }
+  }
+
+  .regrow .head { animation: pop .55s cubic-bezier(.3,1.4,.5,1) .85s backwards; }
+  @keyframes pop { from { opacity: 0; transform: scale(.25); } to { opacity: 1; transform: scale(1); } }
+
+  .regrow .bloom   { animation: unfurl 1.1s cubic-bezier(.22,.9,.3,1) backwards; }
+  .regrow .r-outer { animation-delay: 1.05s; }
+  .regrow .r-in    { animation-delay: 1.22s; }
+
+  .instant .petal, .instant .leaf, .instant .stem, .instant .head { transition: none !important; }
+
+  .breathe {
+    transform-box: view-box;
+    transform-origin: 0px 158px;
+    animation: sway 10s ease-in-out 1s infinite;
+  }
+  @keyframes sway {
+    0%, 100% { transform: rotate(-1deg); }
+    50%      { transform: rotate(1deg); }
+  }
+
+  /* ── tally ──────────────────────────────────── */
+  .tally { display: grid; gap: clamp(7px, 1.4vh, 12px); justify-items: center; }
+
+  .quip {
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic;
+    font-size: clamp(14px, 3.9vmin, 20px);
+    line-height: 1.4;
+    color: var(--cream);
+    margin: 0;
+    max-width: 32ch;
+    min-height: 2.8em;
+    transition: opacity .35s ease;
+  }
+  .quip.out { opacity: 0; }
+
+  .meters { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+  .meter {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 6px 13px;
+    border: 1px solid rgba(244,236,220,.14);
+    border-radius: 999px;
+    background: rgba(7,16,15,.45);
+    font-size: 10.5px;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+  }
+  .meter b, .meter time {
+    font-family: "Jost", sans-serif;
+    font-variant-numeric: tabular-nums;
+    font-weight: 400;
+    font-size: 15px;
+    letter-spacing: .1em;
+    color: var(--cream);
+  }
+  .meter .inf { font-size: 17px; color: var(--gold); }
+
+  .actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px 16px; }
+  .hint {
+    font-size: 10.5px;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: rgba(163,177,166,.65);
+    margin: 0;
+  }
+  .uproot {
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 4px 0;
+    font: inherit;
+    font-size: 10.5px;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border-bottom: 1px dashed rgba(242,179,61,.5);
+    cursor: pointer;
+  }
+  .uproot:hover { color: #ffcb63; border-bottom-color: #ffcb63; }
+  .uproot:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+
+  /* narrow screens */
+  @media (max-width: 430px) {
+    .status { font-size: 9.5px; letter-spacing: .2em; gap: 8px; }
+    .line-3 { letter-spacing: .26em; text-indent: .26em; }
+    .meter { padding: 6px 11px; letter-spacing: .18em; }
+  }
+
+  /* short screens: landscape phones, small laptops */
+  @media (max-height: 620px) {
+    .line-3 { letter-spacing: .26em; text-indent: .26em; }
+    .quip { min-height: 2.6em; max-width: 40ch; }
+    .meter { padding: 5px 11px; font-size: 9.5px; letter-spacing: .18em; }
+    .meter b, .meter time { font-size: 13px; }
+  }
+  @media (max-height: 480px) {
+    .quip { display: none; }
+    .words { gap: 2px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .halo, .halo::before, .dot, .breathe { animation: none !important; }
+    .petal, .leaf, .stem, .head { transition-duration: .01ms !important; }
+    .bloom-in, .regrow * { animation-duration: .01ms !important; animation-delay: 0s !important; }
+  }
+</style>
+
+<main class="room">
+  <div class="status"><span class="dot" aria-hidden="true"></span>WhatsApp · line open · camera ready</div>
+
+  <div class="words">
+    <p class="line-1">I'll wait</p>
+    <p class="swap" id="swap">ten minutes.</p>
+    <p class="line-3">for your <b>WhatsApp</b> call</p>
+  </div>
+
+  <button class="tear" id="tear" aria-label="Destroy the whole sunflower. It grows back every time.">
+    <span class="halo" aria-hidden="true"></span>
+    <svg class="plant" id="plant" viewBox="-105 -125 210 295" role="img" aria-label="A sunflower in full bloom on its stem">
+      <defs>
+        <path id="petal" d="M0 0 C 11 -16, 16 -44, 0 -72 C -16 -44, -11 -16, 0 0 Z"/>
+        <linearGradient id="gPetal" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0" stop-color="#b96f10"/><stop offset=".55" stop-color="#eaa92c"/><stop offset="1" stop-color="#ffd469"/>
+        </linearGradient>
+        <linearGradient id="gPetalIn" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0" stop-color="#95540a"/><stop offset="1" stop-color="#e0992a"/>
+        </linearGradient>
+        <linearGradient id="gStem" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#3f6132"/><stop offset="1" stop-color="#6f9146"/>
+        </linearGradient>
+        <radialGradient id="gDisc" cx="42%" cy="38%">
+          <stop offset="0" stop-color="#7e5024"/><stop offset=".6" stop-color="#4a2c14"/><stop offset="1" stop-color="#2c190a"/>
+        </radialGradient>
+        <radialGradient id="glow" cx="50%" cy="50%">
+          <stop offset="0" stop-color="#f2b33d" stop-opacity=".26"/>
+          <stop offset="1" stop-color="#f2b33d" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="soil" cx="50%" cy="50%">
+          <stop offset="0" stop-color="#6b5a3c" stop-opacity=".5"/>
+          <stop offset="1" stop-color="#6b5a3c" stop-opacity="0"/>
+        </radialGradient>
+        <pattern id="seeds" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(18)">
+          <circle cx="1.6" cy="1.6" r="1.15" fill="#1f1207" opacity=".85"/>
+          <circle cx="4.6" cy="4.6" r="1.15" fill="#2e1c0c" opacity=".85"/>
+        </pattern>
+      </defs>
+
+      <circle cx="0" cy="-20" r="104" fill="url(#glow)"/>
+      <ellipse cx="3" cy="160" rx="54" ry="8" fill="url(#soil)"/>
+
+      <g class="breathe">
+        <path class="stem stem-path" d="M0 8 C -6 60, 8 112, 3 158" fill="none" stroke="url(#gStem)"
+              stroke-width="6" stroke-linecap="round" stroke-dasharray="210"/>
+
+        <g class="leaf leaf-r">
+          <path d="M3 68 C 32 44, 68 56, 74 82 C 52 104, 14 96, 3 68 Z" fill="url(#gStem)" opacity=".94"/>
+          <path d="M3 68 C 28 66, 56 72, 74 82" fill="none" stroke="#2c4523" stroke-width="1.5" opacity=".65"/>
+        </g>
+        <g class="leaf leaf-l">
+          <path d="M1 116 C -28 94, -64 104, -70 128 C -48 148, -12 140, 1 116 Z" fill="url(#gStem)" opacity=".85"/>
+          <path d="M1 116 C -24 116, -50 120, -70 128" fill="none" stroke="#2c4523" stroke-width="1.5" opacity=".6"/>
+        </g>
+
+        <g class="bloom r-in" fill="url(#gPetalIn)">
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(13) scale(.8)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(43) scale(.8)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(73) scale(.8)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(103) scale(.8)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(133) scale(.8)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(163) scale(.8)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(193) scale(.8)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(223) scale(.8)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(253) scale(.8)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(283) scale(.8)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(313) scale(.8)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(343) scale(.8)"/></g>
+        </g>
+
+        <g class="bloom r-outer" fill="url(#gPetal)">
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(0)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(26)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(52)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(77)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(103)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(129)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(154)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(180)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(206)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(232)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(257)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(283)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(309)"/></g>
+          <g class="petal"><use href="#petal" transform="translate(0 -20) rotate(334)"/></g>
+        </g>
+
+        <g class="head">
+          <circle cx="0" cy="-20" r="31" fill="url(#gDisc)"/>
+          <circle cx="0" cy="-20" r="31" fill="url(#seeds)" opacity=".55"/>
+          <circle cx="0" cy="-20" r="31" fill="none" stroke="#8a5a26" stroke-width="2.5" opacity=".75"/>
+          <circle cx="0" cy="-20" r="14" fill="none" stroke="#3a220f" stroke-width="6" opacity=".35"/>
+          <circle cx="-9" cy="-30" r="13" fill="#ffd469" opacity=".07"/>
+        </g>
+      </g>
+    </svg>
+  </button>
+
+  <div class="tally">
+    <p class="quip" id="quip">Sunflowers face the light. This one faces your name in my chat list. Tap it — the whole plant goes, roots and all.</p>
+    <div class="meters">
+      <span class="meter">Destroyed <b id="count">0</b></span>
+      <span class="meter">Sunflowers left <b class="inf">&infin;</b></span>
+      <span class="meter">Holding <time id="elapsed" datetime="PT0S">00:00</time></span>
+    </div>
+    <div class="actions">
+      <p class="hint">One tap · whole plant</p>
+    </div>
+  </div>
+</main>
+
+<script>
+  (function () {
+    var plant  = document.getElementById("plant");
+    var tear   = document.getElementById("tear");
+    var quip   = document.getElementById("quip");
+    var count  = document.getElementById("count");
+    var swap   = document.getElementById("swap");
+    var clock  = document.getElementById("elapsed");
+    var petals = Array.prototype.slice.call(plant.querySelectorAll(".petal"));
+    var leaves = Array.prototype.slice.call(plant.querySelectorAll(".leaf"));
+    var blooms = Array.prototype.slice.call(plant.querySelectorAll(".bloom"));
+
+    /* ── "I'll wait ___" ─────────────────────── */
+    var waits = [
+      "ten minutes.",
+      "twenty minutes.",
+      "an hour, easy.",
+      "till the sun gives up.",
+      "all afternoon.",
+      "a whole day.",
+      "a whole week, honestly.",
+      "as long as it takes."
+    ];
+    var w = 0;
+    setInterval(function () {
+      swap.classList.add("out");
+      setTimeout(function () {
+        w = (w + 1) % waits.length;
+        swap.textContent = waits[w];
+        swap.classList.remove("out");
+      }, 500);
+    }, 3400);
+
+    /* ── lines ───────────────────────────────── */
+    var marks = [0, 1, 2, 3, 4, 5, 7, 10, 15, 20, 30, 50];
+    var lines = [
+      "Sunflowers face the light. This one faces your name in my chat list. Tap it — the whole plant goes, roots and all.",
+      "Gone, roots and all. Give it four seconds — watch what the ground does.",
+      "Twice now. Whatever you pull up, the soil keeps a copy.",
+      "Three whole plants. There was a seed under every single one.",
+      "Four. Sunflowers are stubborn like that. So am I.",
+      "Five. You can clear this field all evening; it comes back the second you look away.",
+      "Seven. You could just ring me instead. Green button. Right there.",
+      "Ten! Fine. Take it out on the flower. I'll hold.",
+      "Fifteen. Somewhere a whole field is very confused.",
+      "Twenty plants, twenty comebacks, zero grudges. Still facing your way.",
+      "Thirty. I could do this all day. I am, in fact, doing this all day.",
+      "Fifty. At this point you're not destroying it, you're farming."
+    ];
+
+    var n = 0;
+    try { n = parseInt(localStorage.getItem("plantsDestroyed"), 10) || 0; } catch (e) {}
+    count.textContent = n;
+
+    function say(text) {
+      quip.classList.add("out");
+      setTimeout(function () {
+        quip.textContent = text;
+        quip.classList.remove("out");
+      }, 340);
+    }
+    function pick(v) {
+      var idx = 0;
+      for (var i = 0; i < marks.length; i++) { if (v >= marks[i]) idx = i; }
+      return lines[idx];
+    }
+    function scatter(nodes, xs, ys, p) {
+      nodes.forEach(function (el, i) {
+        var a = Math.random() * Math.PI * 2;
+        el.style.setProperty("--" + p + "x", (Math.cos(a) * xs * (.4 + Math.random())).toFixed(1) + "px");
+        el.style.setProperty("--" + p + "y", (ys + Math.random() * 150).toFixed(1) + "px");
+        el.style.setProperty("--" + p + "r", (Math.random() * 620 - 310).toFixed(0) + "deg");
+        el.style.transitionDelay = (i * 12) + "ms";
+      });
+    }
+    function clear(nodes, p) {
+      nodes.forEach(function (el) {
+        el.style.transitionDelay = "0ms";
+        el.style.removeProperty("--" + p + "x");
+        el.style.removeProperty("--" + p + "y");
+        el.style.removeProperty("--" + p + "r");
+      });
+    }
+
+    var busy = false;
+
+    /* ── one tap, whole plant ────────────────── */
+    tear.addEventListener("click", function () {
+      if (busy) return;
+      busy = true;
+
+      scatter(petals, 160, 120, "d");
+      scatter(leaves, 140, 120, "l");
+      plant.classList.remove("regrow");
+      plant.classList.add("uprooted");
+
+      n += 1;
+      count.textContent = n;
+      try { localStorage.setItem("plantsDestroyed", String(n)); } catch (e) {}
+      say(pick(n));
+
+      setTimeout(function () {
+        plant.classList.add("instant");
+        plant.classList.remove("uprooted");
+        clear(petals, "d");
+        clear(leaves, "l");
+        void plant.getBoundingClientRect();
+        plant.classList.remove("instant");
+
+        plant.classList.remove("regrow");
+        void plant.getBoundingClientRect();
+        plant.classList.add("regrow");
+
+        setTimeout(function () {
+          plant.classList.remove("regrow");
+          busy = false;
+        }, 2400);
+      }, 1300);
+    });
+
+    /* ── holding for ─────────────────────────── */
+    var start = Date.now();
+    function pad(x) { return String(x).padStart(2, "0"); }
+    setInterval(function () {
+      var s = Math.floor((Date.now() - start) / 1000);
+      var h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60;
+      clock.textContent = (h ? h + ":" : "") + pad(m) + ":" + pad(s % 60);
+      clock.setAttribute("datetime", "PT" + s + "S");
+    }, 1000);
+  })();
+</script>
+</body>
+</html>
